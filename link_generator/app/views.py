@@ -6,6 +6,7 @@ from django.views import View
 from django.contrib import messages
 from app import short_code
 from app.models import Urls
+from link_generator.settings import SITE_URL
 
 
 class Start(View):
@@ -19,7 +20,7 @@ class Start(View):
             short_link = short_code.get_short_code()
             link = Urls(short_link=short_link, original_url=url)
             link.save()
-            link = 'http://localhost:8000/' + short_link
+            link = SITE_URL + short_link
             messages.success(request, link)
         return redirect('index')
 
