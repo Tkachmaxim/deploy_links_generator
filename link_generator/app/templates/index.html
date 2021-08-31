@@ -1,0 +1,23 @@
+{% extends 'base.html'%}
+{% block generator %}
+
+<h1>Введите ссылку</h1>
+
+<form method="post" action=''>
+    {% csrf_token %}
+    <input height="30" name="link">
+    <input type="submit" value="Сгенерировать">
+</form>
+
+{% if messages %}
+{% for message in messages %}
+<p class="alert alert-info" role="alert">Ваша короткая сслыка: {{message}}</p>
+{% endfor %}
+{% endif %}
+
+
+{% endblock %}
+
+
+
+</html>
