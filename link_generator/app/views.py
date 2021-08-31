@@ -6,7 +6,6 @@ from django.views import View
 from django.contrib import messages
 from app import short_code
 from app.models import Urls
-from link_generator.settings import SITE_URL
 
 
 class Start(View):
@@ -17,11 +16,11 @@ class Start(View):
     def post(self, request):
         url = request.POST.get('link')
         if url != '':
-            short_link = short_code.get_short_code()
-            link = Urls(short_link=short_link, original_url=url)
+            link = short_code.get_short_code()
+            link_for_display = request.build_absolute_uri()+link
+            link = Urls(short_link=link, original_url=url)
             link.save()
-            link = SITE_URL + short_link
-            messages.success(request, link)
+            messages.success(request, link_for_display)
         return redirect('index')
 
 
@@ -30,7 +29,6 @@ class ReturnShortLink(View):
     def get(self, request, short_id):
         try:
             original_url = get_object_or_404(Urls, short_link=short_id)
-
         except MultipleObjectsReturned:
             original_url = Urls.objects.filter(short_link=short_id).order_by('-date')[0]
 
