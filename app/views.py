@@ -21,7 +21,7 @@ class Start(View):
             link = Urls(short_link=link, original_url=url)
             link.save()
             messages.success(request, link_for_display)
-        return redirect('index')
+        return redirect(request.path)
 
 
 class ReturnShortLink(View):
