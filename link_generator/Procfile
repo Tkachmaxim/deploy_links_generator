@@ -1,1 +1,0 @@
-web: gunicorn link_generator.wsgi
