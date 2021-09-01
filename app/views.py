@@ -36,4 +36,5 @@ class ReturnShortLink(View):
         if checktime < original_url.date:
             return HttpResponseRedirect(f'{original_url}')
         else:
+            original_url.delete()
             raise Http404
