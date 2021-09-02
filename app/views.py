@@ -1,10 +1,11 @@
 import datetime
+import os
+import hashlib
 from django.shortcuts import render, get_object_or_404, redirect
-from django.core.exceptions import MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import HttpResponseRedirect, Http404
 from django.views import View
 from django.contrib import messages
-from app import short_code
 from app.models import Urls
 
 
@@ -16,11 +17,31 @@ class Start(View):
     def post(self, request):
         url = request.POST.get('link')
         if url != '':
-            link = short_code.get_short_code()
-            link_for_display = request.build_absolute_uri()+link
-            link = Urls(short_link=link, original_url=url)
-            link.save()
-            messages.success(request, link_for_display)
+            link = hashlib.md5(url.encode()).hexdigest()
+            # checking whether this hashlink with same url in database is the or no
+            if len(Urls.objects.filter(short_link=link, original_url=url))>=1:
+                link_for_display = request.build_absolute_uri() + link[:7]
+                messages.success(request, link_for_display)
+                return redirect(request.path)
+
+            # next check object with same hash adn if yes - generate new hash for url
+            elif len(Urls.objects.filter(short_link=link))>=1:
+                print('next')
+                salt1 = os.urandom(hashlib.blake2b.SALT_SIZE)
+                link = hashlib.blake2b(salt=salt1)
+                link.update(url.encode())
+                link_for_data = Urls(short_link=link.hexdigest(), original_url=url)
+                link_for_data.save()
+                link_for_display = request.build_absolute_uri() + link.hexdigest()[:7]
+                messages.success(request, link_for_display)
+                return redirect(request.path)
+            # if we have not any thing generate new object
+            else:
+                link_for_data = Urls(short_link=link, original_url=url)
+                link_for_data.save()
+                link_for_display = request.build_absolute_uri() + link[:7]
+                messages.success(request, link_for_display)
+                return redirect(request.path)
         return redirect(request.path)
 
 
