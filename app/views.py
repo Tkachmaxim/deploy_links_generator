@@ -17,10 +17,10 @@ class Start(View):
     def post(self, request):
         url = request.POST.get('link')
         if url != '':
-            link = hashlib.md5(url.encode()).hexdigest()
+            link = hashlib.md5(url.encode()).hexdigest()[:7]
             # checking whether this hashlink with same url in database is the or no
             if len(Urls.objects.filter(short_link=link, original_url=url))>=1:
-                link_for_display = request.build_absolute_uri() + link[:7]
+                link_for_display = request.build_absolute_uri() + link
                 messages.success(request, link_for_display)
                 return redirect(request.path)
 
